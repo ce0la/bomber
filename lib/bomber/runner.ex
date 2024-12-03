@@ -8,7 +8,15 @@ defmodule Bomber.Runner do
     end)
 
     results = Task.await_many(tasks)
-    {:ok, results}
+    #{:ok, results}
+    {:ok =
+      :telemetry.attach(
+      # unique handler id
+      "log-response-handler",
+      [:url, :request, :done],
+      &LogResponseHandler.handle_event/4,
+      nil
+    )
 
     #Enum.each(1..count, fn _ ->
     #  Bomber.Http.get(url)

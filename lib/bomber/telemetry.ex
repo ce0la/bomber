@@ -1,5 +1,5 @@
 defmodule Bomber.Telemetry do
-  use Telemetry
+  # use Telemetry
 
   defp metrics(event_name, measurements) do
     Telemetry.emit(__MODULE__, event_name, measurements)

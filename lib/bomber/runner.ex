@@ -4,34 +4,31 @@ defmodule Bomber.Runner do
 
   def run(url, count) do
     tasks = Enum.map(1..count, fn _ ->
-      Task.async(fn -> Bomber.Http.get(url) end)
+      Task.async(fn -> execute_request(url) end)
     end)
 
-    results = Task.await_many(tasks)
-    #{:ok, results}
-    {:ok =
-      :telemetry.attach(
-      # unique handler id
-      "log-response-handler",
-      [:url, :request, :done],
-      &LogResponseHandler.handle_event/4,
-      nil
-    )
-
-    #Enum.each(1..count, fn _ ->
-    #  Bomber.Http.get(url)
-    #end)
+    Task.await_many(tasks)
   end
 
-  def my_function(url, count) do
+  defp execute_request(url) do
     pid = self()
-    my_function_started(pid)
 
+    # Log the start of the HTTP request
+    http_request_started(pid, url)
+
+    # Track the start time for latency
     start_time = System.monotonic_time()
 
-    run(url, count)
+    try do
+      response = Bomber.Http.get(url)
 
-    duration = System.monotonic_time() - start_time
-    my_function_finished(pid, duration)
+      duration = Sysem.monotonic_time() - start_time
+      http_request_finished(pid, url, duration, response.status_code, :ok)
+    rescue
+      e in HTTPoison.Error ->
+        duration = System.monotonic_time() - start_time
+        http_request_finished(pid, url, duration, nil, {:error, e})
+        Logger.error("Request failed: #{inspect(e)}")
+    end
   end
 end

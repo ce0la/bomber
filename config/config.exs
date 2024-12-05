@@ -1,3 +1,5 @@
+import Config
+
 config :telemetry,
   metrics: [
     bomber: [

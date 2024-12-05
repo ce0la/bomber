@@ -1,4 +1,6 @@
 defmodule Bomber.Runner do
+  require Logger
+  require System
   import Task
   import Bomber.Telemetry
 
@@ -22,7 +24,7 @@ defmodule Bomber.Runner do
     try do
       response = Bomber.Http.get(url)
 
-      duration = Sysem.monotonic_time() - start_time
+      duration = System.monotonic_time() - start_time
       http_request_finished(pid, url, duration, response.status_code, :ok)
     rescue
       e in HTTPoison.Error ->

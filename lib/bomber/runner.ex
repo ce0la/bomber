@@ -6,7 +6,12 @@ defmodule Bomber.Runner do
 
   def run(url, count) do
     tasks = Enum.map(1..count, fn _ ->
-      Task.async(fn -> get(url) end)
+      Task.async(fn ->
+        start_time = System.monotonic_time(:second)
+        response = get(url)
+        duration = System.monotonic_time(:second) - start_time
+        Logger.info(%{url: response.request_url, status_code: response.status_code, duration: duration})
+      end)
     end)
 
     results = Task.await_many(tasks)
@@ -15,6 +20,5 @@ defmodule Bomber.Runner do
       IO.inspect(file, results, [])
     end)
 
-    {:ok, results}
   end
 end

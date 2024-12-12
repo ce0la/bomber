@@ -1,17 +1,11 @@
 import Config
 
-config :telemetry,
-  metrics: [
-    bomber: [
-      docs: %{"my_function_started" => "Function started", "my_function_finished" => "Function finished"},
-      measurement: [:duration]
-    ]
+config :logger, :default_handler,
+  config: [
+    file: ~c"logs/telemetry.log",
+    filesync_repeat_interval: 5000,
+    file_check: 5000,
+    max_no_bytes: 10_000_000,
+    max_no_files: 5,
+    compress_on_rotate: true
   ]
-
-config :logger,
-  backends: [:console, {LoggerFileBackend, :file}],
-  level: :info
-
-config :logger, :file,
-  path: "logs/telemetry.log",
-  level: :info
